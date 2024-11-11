@@ -1,9 +1,9 @@
 package br.ucsal.todo.todo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import br.ucsal.todo.util.NotFoundException;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
@@ -46,9 +47,34 @@ public class TodoServiceTest {
             todoDTO.setId(todo.getId());
             todosDTO.add(todoDTO);
         }
-		
         //act
         List<TodoDTO> findAll = todoService.findAll();
+        //assert
         assertEquals(todosDTO, findAll);
 	}
+    
+    @Test
+    public void testGetWhenTodoExist() {
+    	//arrange
+    	Todo todo = new Todo();
+        todo.setCompleted(false);
+        todo.setTitle("Teste");
+        todoRepository.save(todo);
+        TodoDTO todoDTOExpected = new TodoDTO();
+        todoDTOExpected.setCompleted(false);
+        todoDTOExpected.setTitle("Teste");
+        todoDTOExpected.setId(todo.getId());
+        //act
+        TodoDTO todoDTOActual = todoService.get(todo.getId());
+        //assert
+        assertEquals(todoDTOExpected, todoDTOActual);
+        
+    }
+    
+    @Test
+    public void testGetWhenTodoDoesNotExist() {
+    	//arrange && act && assert
+    	assertThrows(NotFoundException.class, () -> todoService.get(1L));
+    }
 }
+
