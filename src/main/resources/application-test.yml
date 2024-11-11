@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:h2:mem:todo}
+    username: ${JDBC_DATABASE_USERNAME:sa}
+    password: ${JDBC_DATABASE_PASSWORD:}
