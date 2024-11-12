@@ -2,6 +2,7 @@ package br.ucsal.todo.todo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import br.ucsal.todo.util.NotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -76,5 +78,72 @@ public class TodoServiceTest {
     	//arrange && act && assert
     	assertThrows(NotFoundException.class, () -> todoService.get(1L));
     }
+    
+    @Test
+    public void testCreate() {
+    	//arrange
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setTitle("Teste");
+    	todoDTO.setCompleted(false);
+
+    	//act
+    	
+    	Long id = todoService.create(todoDTO);
+    	//assert
+    	assertTrue(id instanceof Long);
+    }
+    
+    //esse teste vai falhar, pois não está retornando erro de validação
+    //corrigir isso
+    @Test
+    public void testCreateWhenTitleIsNull() {
+    	//arrange
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setCompleted(false);
+    	todoDTO.setTitle(null);
+    	//act && assert
+    	assertThrows(ConstraintViolationException.class, () -> todoService.create(todoDTO));
+    }
+    @Test
+    public void testCreateWhenTitleIsBiggerThan255() {
+    	//arrange
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setCompleted(false);
+    	todoDTO.setTitle("A".repeat(256));
+    	//act && assert
+    	assertThrows(ConstraintViolationException.class, () -> todoService.create(todoDTO));
+    }
+    
+    @Test
+    public void testCreatWhenTitleWhenCompletedIsNull() {
+    	//arrange
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setCompleted(false);
+    	todoDTO.setTitle("Teste");
+    	//act && assert
+    	assertThrows(ConstraintViolationException.class, () -> todoService.create(todoDTO));
+    }
+
+    @Test
+    public void testUpdate() {
+    	//arrange
+    	Todo todo = new Todo();
+    	todo.setTitle("Teste");
+    	todo.setCompleted(true);
+    	todoRepository.save(todo);
+    	
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setId(todo.getId());
+    	todoDTO.setCompleted(false);
+    	todoDTO.setTitle("Teste");
+    	
+    	//act
+    	//todoService.u
+    }
+    //update
+    //delete
+    //mapToDTO
+    //mapToEntity
+
 }
 
