@@ -1,11 +1,13 @@
 package br.ucsal.todo.todo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import br.ucsal.todo.util.NotFoundException;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 
@@ -124,6 +128,7 @@ public class TodoServiceTest {
     	assertThrows(ConstraintViolationException.class, () -> todoService.create(todoDTO));
     }
 
+    
     @Test
     public void testUpdate() {
     	//arrange
@@ -135,15 +140,53 @@ public class TodoServiceTest {
     	TodoDTO todoDTO = new TodoDTO();
     	todoDTO.setId(todo.getId());
     	todoDTO.setCompleted(false);
-    	todoDTO.setTitle("Teste");
-    	
+    	todoDTO.setTitle("Teste2");
     	//act
-    	//todoService.u
+    	todoService.update(todo.getId(), todoDTO);
+    	//assert
+    	Todo updatedTodo = todoRepository.findById(todo.getId()).get();
+    	
+    	assertEquals(false, updatedTodo.getCompleted());
+    	assertEquals("Teste2", updatedTodo.getTitle());
     }
-    //update
-    //delete
-    //mapToDTO
-    //mapToEntity
-
+    
+    //o teste abaixo necessita ser refinado
+    @Test
+    public void testUpdateWithInvalidFields() {
+    	//arrange
+    	Todo todo = new Todo();
+    	todo.setTitle("Teste");
+    	todo.setCompleted(true);
+    	todoRepository.save(todo);
+    	
+    	TodoDTO todoDTO = new TodoDTO();
+    	todoDTO.setId(todo.getId());
+    	todoDTO.setCompleted(null);
+    	todoDTO.setTitle("");
+    	
+    	assertThrows(ConstraintViolationException.class, () -> todoService.update(todo.getId(), todoDTO));
+    }
+    
+    @Test
+    public void testDelete() {
+    	//arrange
+    	Todo todo = new Todo();
+    	todo.setCompleted(true);
+    	todo.setTitle("Delete teste");
+    	todoRepository.save(todo);
+    	//act
+    	
+    	todoService.delete(todo.getId());
+    	//assert
+    	
+    	Optional<Todo> findById = todoRepository.findById(todo.getId());
+    	assertFalse(findById.isPresent());
+    }
+    
+    @Test
+    public void testDeleteWhenIdNotFound() {
+    	Long id = 1L;
+    	assertThrows(EntityNotFoundException.class, () -> todoService.delete(id));
+    }
 }
 
