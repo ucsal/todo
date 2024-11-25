@@ -21,7 +21,7 @@ import jakarta.transaction.Transactional;
 @ActiveProfiles("test")
 @Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class TodoResourceTest {
+public class TodoResourceTestIntegration {
 
 	@Autowired
 	private TodoRepository todoRepository;
