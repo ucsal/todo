@@ -5,7 +5,7 @@ public class TodoDTOBuilder {
     private Long id;
     private String title;
     private Boolean completed;
-
+    
     public TodoDTOBuilder id(Long id) {
         this.id = id;
         return this;
